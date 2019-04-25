@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" type="text/css" href="assets/font_Icon/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/chat.css">
+
+    <script src="assets/js/jquery.min.js"></script>
+    <!-- 弹幕插件 -->
+    <script src="assets/js/jquery.barrager.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src="layer/layer.js"></script>
+</head>
+<body>
+
+<div class="container-fluid">
+    <!-- 用户消息列表 -->
+    <div class="row" id="messages">
+
+    </div>
+
+    <div class="chatContainer">
+        <div class="chatBtn">
+            <i class="iconfont icon-xiaoxi1"></i>
+        </div>
+        <div class="chat-message-num">10</div>
+        <div class="chatBox" ref="chatBox">
+            <div class="chatBox-head">
+                <div class="chatBox-head-one">
+                    Conversations
+                    <div class="chat-close" style="margin: 10px 10px 0 0;font-size: 14px">关闭</div>
+                </div>
+                <div class="chatBox-head-two">
+                    <div class="chat-return">返回</div>
+                    <div class="chat-people">
+                        <div class="ChatInfoHead">
+                            <img src="" alt="头像"/>
+                        </div>
+                        <div class="ChatInfoName">这是用户的名字，看看名字到底能有多长</div>
+                    </div>
+                    <div class="chat-close">关闭</div>
+                </div>
+            </div>
+            <div class="chatBox-info">
+                <div class="chatBox-list" ref="chatBoxlist">
+                    <div class="chat-list-people">
+                        <div><img src="img/icon01.png" alt="头像"/></div>
+                        <div class="chat-name">
+                            <p>自酌一杯酒</p>
+                        </div>
+                        <div class="message-num">10</div>
+                    </div>
+                </div>
+                <div class="chatBox-kuang" ref="chatBoxkuang">
+                    <div class="chatBox-content">
+                        <div class="chatBox-content-demo" id="chatBox-content-demo">
+
+                            <div class="clearfloat">
+                                <div class="author-name">
+                                    <small class="chat-date">2017-12-02 14:26:58</small>
+                                </div>
+                                <div class="right">
+                                    <div class="chat-message">嗯，适合做壁纸</div>
+                                    <div class="chat-avatars"><img src="img/icon02.png" alt="头像"/></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="chatBox-send">
+                        <div class="div-textarea" contenteditable="true"></div>
+                        <div>
+                            <button id="chat-fasong" class="btn-default-styles"><i class="iconfont icon-fasong"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 构建 HTML 的对象
+    let Html = new HtmlBuilder();
+    // 当前用户实例
+    let User = {};
+    // 弹幕
+    let Message = new MessageBuilder();
+
+
+    $('#send_btn').click(function () {
+        // 获取所有人的列表
+        let content = $('#msg_box').val();
+        $('#msg_box').val('');
+        let message = {'type': 'msg', 'content': content};
+        ws.send(JSON.stringify(message));
+    });
+    $('#send_btn_group').click(function () {
+        let content = $('#msg_box').val();
+        $('#msg_box').val('');
+        let message = {'type': 'msg_group', 'content': content};
+        ws.send(JSON.stringify(message));
+    });
+
+    // 用户初始化进来用户名
+    User.username = prompt('请输入大侠的名字') || '游客';
+
+    let ws = new WebSocket("ws://127.0.0.1:8282");
+
+    ws.onopen = function () {
+
+        // 发送一个登录请求得到自己的 ID
+        let message = {type: 'login', username: User.username};
+        ws.send(JSON.stringify(message));
+
+        // 获取所有人的列表
+        message = {'type': 'all_lobby'};
+        ws.send(JSON.stringify(message));
+    };
+
+
+    // 当有消息通知时
+    ws.onmessage = function (event) {
+
+        let object = JSON.parse(event.data);
+        let data = object.data;
+
+        console.log(object);
+
+        switch (object.type) {
+
+            // 绑定自己的账号
+            case 'bind':
+                User.id = object.data.client_id;
+                break;
+
+            // 登录完之后, 有人上线通知, 也有可能是自己
+            case 'login_ed':
+
+                Message.send(data.username + " 用户上线了");
+                Html.appendUser(data.client_id, data.username)
+                break;
+
+            // 获取大厅列表
+            case 'all_lobby_ed':
+                Html.initUserList(data.users);
+                break;
+
+            case 'vs_connection_ed':
+                //询问框
+                let msg = data.username + '('+ data.client_id +') 像你发起了挑战, 是否接受!';
+                layer.confirm(msg, {
+                    btn: ['接受','取消'] //按钮
+                }, function(){
+
+                    let message = {type: 'vs_build', 'vs_id': data.client_id};
+                    ws.send(JSON.stringify(message));
+                    // 建立连接, 加入同一个组
+                    layer.msg('建立游戏连接中');
+                }, function(){});
+                break;
+
+            case 'vs_build_ed':
+                // 先移除用户
+                let users = '';
+                for (let i in data.users) {
+
+                    let user = data.users[i];
+                    Html.removeUser(user.id);
+                    users += user.username + ' ';
+                }
+
+                Message.send(users + ' 加入了战斗');
+                // 把大厅列表隐藏
+                $('#online_users').find('button').prop('disabled', true);
+                break;
+
+            case 'msg_ed':
+                Message.send(data.username + ": " + data.content);
+                break;
+
+            case 'msg_group_ed':
+                Message.send('@' + data.username + ": " + data.content, true);
+                break;
+
+            case 'error_msg_ed':
+                Message.error(data.content);
+                break;
+
+            // 用户退出登录了
+            case 'logout_ed':
+
+                let username = Html.removeUser(data.client_id);
+                Message.send(username + " 用户下线了");
+                break;
+        }
+    };
+
+    ws.onclose = function()
+    {
+
+        // 关闭 websocket
+        alert("连接已关闭...");
+    };
+
+
+    // 开始游戏, 联系放到一个组
+    $('#online_users').on('click', '.start_games', function () {
+
+        let vs_id = $(this).data('id');
+        let message = {type: 'vs_connection', vs_id: vs_id};
+        ws.send(JSON.stringify(message));
+        layer.msg('发送邀请成功');
+    });
+
+    function HtmlBuilder() {
+
+        this.buildUserHtml = function(id, username) {
+
+            let className = '';
+            let buttonDom = '<button data-id="'+ id +'" type="button" class="btn btn-info btn-block start_games">(联机)</button>\n';
+            if (id === User.id) {
+
+                className = 'green_span';
+                buttonDom = '';
+            }
+
+
+            return '<div class="panel panel-default" id="online_users_'+ id +'">\n' +
+                '  <div class="panel-body txt '+ className +'" title="'+ id +'" >\n' +
+                '    '+ username +' ('+ id +') \n' +
+                '  </div>\n' + buttonDom +
+                '</div>';
+        };
+
+        this.initUserList = function (users) {
+
+            let that = this;
+            let html = '';
+
+            Object.keys(users).forEach(function (key) {
+
+                html += that.buildUserHtml(key, users[key].username);
+            });
+
+            $('#online_users').html(html);
+        };
+
+        this.appendUser = function (id, username) {
+
+            $('#online_users').append(this.buildUserHtml(id, username));
+        };
+
+
+        this.removeUser = function (id) {
+            let dom = '#online_users_' + id;
+            let username = $(dom).find('.panel-body').text();
+            $(dom).remove();
+
+            return username;
+        };
+    };
+
+
+    function MessageBuilder() {
+
+        this.dom = $('#messages');
+
+        this.send = function (msg, isGroup) {
+
+            let color = isGroup ? '#98FB98' : '#fff';
+
+            let item = {
+                info: msg, //文字
+                close:true, //显示关闭按钮
+                speed:6, //延迟,单位秒,默认6
+                color: color, //颜色,默认白色
+                old_ie_color:'#ffffff', //ie低版兼容色,不能与网页背景相同,默认黑色
+            };
+
+            this.dom.barrager(item);
+        };
+
+        this.error = function (msg) {
+
+            layer.alert(msg, {icon: 2, title: '错误'});
+        };
+    }
+
+    // $('#canvas').barrager("clear");
+</script>
+<script src="assets/js/chat.js"></script>
+</body>
+</html>
