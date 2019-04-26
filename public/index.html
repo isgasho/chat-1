@@ -93,7 +93,7 @@
 
         bind: function (data) {
 
-            User = new UserClass(data.id, data.username, data.avatar);
+            User = new UserClass(data.id, User.username, data.avatar);
             Char.updateSelfInfo(User);
         },
 

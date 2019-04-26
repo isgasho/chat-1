@@ -45,7 +45,6 @@ class Events
 
         // 初始化 session
         $_SESSION['id'] = $client_id;
-        $_SESSION['username'] = '游客';
         $_SESSION['avatar'] = 'assets/img/default.png';
         $_SESSION['group'] = self::LOBBY_GROUP;
 
