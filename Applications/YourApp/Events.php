@@ -19,8 +19,8 @@
  */
 //declare(ticks=1);
 
+use App\IO;
 use \GatewayWorker\Lib\Gateway;
-use Illuminate\Database\Capsule\Manager as DB;
 
 /**
  * 主逻辑
@@ -31,6 +31,7 @@ class Events
 {
     // 大厅组, 默认所有人加入这个组
     const LOBBY_GROUP = 'lobby_group';
+
     /**
      * 当客户端连接时触发
      * 如果业务不需此回调可以删除onConnect
@@ -43,12 +44,12 @@ class Events
         Gateway::joinGroup($client_id, self::LOBBY_GROUP);
 
         // 初始化 session
+        $_SESSION['id'] = $client_id;
         $_SESSION['username'] = '游客';
         $_SESSION['avatar'] = 'assets/img/default.png';
         $_SESSION['group'] = self::LOBBY_GROUP;
 
-        // 先告诉他自己的 ID 是多少
-        Gateway::sendToClient($client_id, Message::jsonMessage('bind', compact('client_id')));
+        Gateway::sendToClient($client_id, IO::encode('bind', $_SESSION));
     }
 
     /**
@@ -60,119 +61,9 @@ class Events
      */
    public static function onMessage($client_id, $message)
    {
-       $array = Message::parseMessage($message);
+       $data = IO::decode($message);
 
-       switch ($array['type']) {
-
-           // 如果是登录操作
-           case 'login':
-
-               $username = $array['username'];
-               $_SESSION['username'] = $username;
-
-               // 告诉其他人有人上线了
-               Gateway::sendToAll(
-                   Message::jsonMessage('login_ed', compact('client_id', 'username')),
-                   null,
-                   $client_id
-               );
-               break;
-
-           // 前端获取所有人列表
-           case 'all_lobby':
-
-               // 获取大厅人数, 发送大厅所有人给前端, 一般初始化使用
-               $users = Gateway::getClientSessionsByGroup(self::LOBBY_GROUP);
-               Gateway::sendToClient(
-                   $client_id,
-                   Message::jsonMessage('all_lobby_ed', compact('users'))
-               );
-               break;
-
-           // 有人发起了房间的连接
-           case 'vs_connection':
-
-               $vsId = $array['vs_id'];
-               $username = Gateway::getSession($client_id)['username'] ?? '未知用户';
-               Gateway::sendToClient(
-                   $vsId,
-                   Message::jsonMessage('vs_connection_ed', compact('client_id', 'username'))
-               );
-               break;
-
-           // 当双方同意了挑战, 开始
-           case 'vs_build':
-
-               // 要 PK 的人
-               $vsId = $array['vs_id'];
-               $vsSession = Gateway::getSession($vsId);
-
-               // 如果这两个人不在大厅, 那么提示在战斗中
-               if ($_SESSION['group'] !== self::LOBBY_GROUP) {
-                   Gateway::sendToClient(
-                       $client_id,
-                       Message::jsonMessage('error_msg_ed', ['content' => '你不在大厅, 无法参与战斗'])
-                   );
-
-                   break;
-               }
-
-               if ($vsSession['group'] !== self::LOBBY_GROUP) {
-                   Gateway::sendToClient(
-                       $client_id,
-                       Message::jsonMessage('error_msg_ed', ['content' => '对手不在大厅, 无法参与战斗'])
-                   );
-                   break;
-               }
-
-
-
-               $group = uniqid(true);
-               // 创建一个分组, 把这两个人加入同一个分组
-               Gateway::joinGroup($client_id, $group);
-               Gateway::joinGroup($vsId, $group);
-
-               $_SESSION['group'] = $group;
-               Gateway::updateSession($vsId, compact('group'));
-               // 把这两个人从大厅移除
-               Gateway::leaveGroup($client_id, self::LOBBY_GROUP);
-               Gateway::leaveGroup($vsId, self::LOBBY_GROUP);
-
-               $users = [
-                   ['id' => $client_id, 'username' => $_SESSION['username']],
-                   ['id' => $vsId, 'username' => $vsSession['username']],
-               ];
-               // 发送消息通知大厅, 有人开始打斗了, 然后并动态移除这两个人的身份
-               $msg = Message::jsonMessage('vs_build_ed', compact('users'));
-               Gateway::sendToAll($msg);
-               break;
-
-           // 当有大厅消息发送来的时候
-           case 'msg':
-               $content = $array['content'];
-               $username = Gateway::getSession($client_id)['username'];
-               Gateway::sendToAll(Message::jsonMessage('msg_ed', compact('client_id', 'username', 'content')));
-               break;
-
-           // 当有组内消息
-           case 'msg_group':
-               $content = $array['content'];
-               $username = Gateway::getSession($client_id)['username'];
-               $group = Gateway::getSession($client_id)['group'];
-               Gateway::sendToGroup(
-                   $group,
-                   Message::jsonMessage('msg_group_ed', compact('client_id', 'username', 'content'))
-               );
-               break;
-
-
-           // 开始游戏, 把它移除组内
-
-           // 结束游戏, 返回大厅组
-
-           default:
-               break;
-       }
+       call_user_func([\App\MessageHandler::class, $data['type']], $client_id, $data['data'] ?? []);
    }
 
     /**
@@ -184,27 +75,6 @@ class Events
    public static function onClose($client_id)
    {
        // 向所有人发送
-       $message = Message::jsonMessage('logout_ed', compact('client_id'));
-       GateWay::sendToAll($message, null, $client_id);
+       Gateway::sendToAll(IO::encode('logout', compact('client_id')));
    }
-}
-
-
-class Message
-{
-    public static function jsonMessage($type, $data)
-    {
-        return json_encode(compact('type', 'data'));
-    }
-
-    public static function parseMessage($json)
-    {
-        $array = json_decode($json, true);
-
-        if (json_last_error() != JSON_ERROR_NONE) {
-            return [];
-        }
-
-        return $array;
-    }
 }

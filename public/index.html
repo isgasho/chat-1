@@ -26,50 +26,45 @@
         <div class="chatBtn">
             <i class="iconfont icon-xiaoxi1"></i>
         </div>
-        <div class="chat-message-num">10</div>
+        <div class="chat-message-num" id="total-message">0</div>
         <div class="chatBox" ref="chatBox">
+
             <div class="chatBox-head">
-                <div class="chatBox-head-one">
-                    Conversations
+                <div class="chatBox-head-one" style="display: block;">
+                    <div class="chat-people">
+                        <div class="ChatInfoHead">
+                            <img style="vertical-align: baseline;" id="self-avatar" src="" alt="头像">
+                        </div>
+                    </div>
+                    <span id="self-username">xxx</span>
                     <div class="chat-close" style="margin: 10px 10px 0 0;font-size: 14px">关闭</div>
                 </div>
-                <div class="chatBox-head-two">
+                <div class="chatBox-head-two" style="display: none;">
                     <div class="chat-return">返回</div>
                     <div class="chat-people">
                         <div class="ChatInfoHead">
-                            <img src="" alt="头像"/>
+                            <img id="char-avatar" style="vertical-align: baseline;"  src="" alt="头像">
                         </div>
-                        <div class="ChatInfoName">这是用户的名字，看看名字到底能有多长</div>
+                        <div class="ChatInfoName">朗姆酒</div>
                     </div>
                     <div class="chat-close">关闭</div>
                 </div>
             </div>
+
+
             <div class="chatBox-info">
-                <div class="chatBox-list" ref="chatBoxlist">
-                    <div class="chat-list-people">
-                        <div><img src="img/icon01.png" alt="头像"/></div>
-                        <div class="chat-name">
-                            <p>自酌一杯酒</p>
-                        </div>
-                        <div class="message-num">10</div>
-                    </div>
+
+                <div class="chatBox-list" ref="chatBoxlist" id="user_list">
+
+
                 </div>
                 <div class="chatBox-kuang" ref="chatBoxkuang">
                     <div class="chatBox-content">
                         <div class="chatBox-content-demo" id="chatBox-content-demo">
 
-                            <div class="clearfloat">
-                                <div class="author-name">
-                                    <small class="chat-date">2017-12-02 14:26:58</small>
-                                </div>
-                                <div class="right">
-                                    <div class="chat-message">嗯，适合做壁纸</div>
-                                    <div class="chat-avatars"><img src="img/icon02.png" alt="头像"/></div>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
+
                     <div class="chatBox-send">
                         <div class="div-textarea" contenteditable="true"></div>
                         <div>
@@ -83,216 +78,185 @@
     </div>
 </div>
 
+<script src="assets/js/app.js"></script>
 <script>
-    // 构建 HTML 的对象
-    let Html = new HtmlBuilder();
-    // 当前用户实例
-    let User = {};
-    // 弹幕
-    let Message = new MessageBuilder();
-
-
-    $('#send_btn').click(function () {
-        // 获取所有人的列表
-        let content = $('#msg_box').val();
-        $('#msg_box').val('');
-        let message = {'type': 'msg', 'content': content};
-        ws.send(JSON.stringify(message));
-    });
-    $('#send_btn_group').click(function () {
-        let content = $('#msg_box').val();
-        $('#msg_box').val('');
-        let message = {'type': 'msg_group', 'content': content};
-        ws.send(JSON.stringify(message));
-    });
-
     // 用户初始化进来用户名
+    let User = {username: '游客', id: null};
     User.username = prompt('请输入大侠的名字') || '游客';
 
-    let ws = new WebSocket("ws://127.0.0.1:8282");
+    // 通信协议
+    let IO = new IOClass();
+    // 聊天
+    let Char = new CharClass();
+    // 通信处理
+    let MessageHandler = {
 
-    ws.onopen = function () {
+        bind: function (data) {
 
-        // 发送一个登录请求得到自己的 ID
-        let message = {type: 'login', username: User.username};
-        ws.send(JSON.stringify(message));
+            User = new UserClass(data.id, data.username, data.avatar);
+            Char.updateSelfInfo(User);
+        },
 
-        // 获取所有人的列表
-        message = {'type': 'all_lobby'};
-        ws.send(JSON.stringify(message));
-    };
+        login: function (data) {
 
+            Char.setUser(data);
+        },
 
-    // 当有消息通知时
-    ws.onmessage = function (event) {
+        logout: function (data) {
 
-        let object = JSON.parse(event.data);
-        let data = object.data;
+            Char.updateUserStatus(data.client_id, UserClass.USER_STATUSES.LEAVE);
+        },
 
-        console.log(object);
+        allUsers: function (data) {
 
-        switch (object.type) {
+            for (let i in data) {
 
-            // 绑定自己的账号
-            case 'bind':
-                User.id = object.data.client_id;
-                break;
-
-            // 登录完之后, 有人上线通知, 也有可能是自己
-            case 'login_ed':
-
-                Message.send(data.username + " 用户上线了");
-                Html.appendUser(data.client_id, data.username)
-                break;
-
-            // 获取大厅列表
-            case 'all_lobby_ed':
-                Html.initUserList(data.users);
-                break;
-
-            case 'vs_connection_ed':
-                //询问框
-                let msg = data.username + '('+ data.client_id +') 像你发起了挑战, 是否接受!';
-                layer.confirm(msg, {
-                    btn: ['接受','取消'] //按钮
-                }, function(){
-
-                    let message = {type: 'vs_build', 'vs_id': data.client_id};
-                    ws.send(JSON.stringify(message));
-                    // 建立连接, 加入同一个组
-                    layer.msg('建立游戏连接中');
-                }, function(){});
-                break;
-
-            case 'vs_build_ed':
-                // 先移除用户
-                let users = '';
-                for (let i in data.users) {
-
-                    let user = data.users[i];
-                    Html.removeUser(user.id);
-                    users += user.username + ' ';
+                if (data[i].id === User.id) {
+                    continue;
                 }
 
-                Message.send(users + ' 加入了战斗');
-                // 把大厅列表隐藏
-                $('#online_users').find('button').prop('disabled', true);
-                break;
+                Char.setUser(data[i]);
+            }
+        },
 
-            case 'msg_ed':
-                Message.send(data.username + ": " + data.content);
-                break;
+        message: function (data) {
 
-            case 'msg_group_ed':
-                Message.send('@' + data.username + ": " + data.content, true);
-                break;
+            let fromId = data.from_id;
 
-            case 'error_msg_ed':
-                Message.error(data.content);
-                break;
+            let msgModel = new MessageClass(data.time, data.content, false);
+            // 首先肯定不是我发送的.
+            Char.setMessage(fromId,msgModel);
 
-            // 用户退出登录了
-            case 'logout_ed':
+            // 如果当前在用户聊天页面, 直接推送
+            if (Char.chatId === fromId) {
 
-                let username = Html.removeUser(data.client_id);
-                Message.send(username + " 用户下线了");
-                break;
+                $('#chatBox-content-demo').append(Char.htmlBuilder.msg(msgModel));
+
+            } else {
+
+                // 在其他界面, 用户聊天术 + 1
+                Char.updateTotalNumber(1);
+                Char.updateUserUnreadCount(fromId, 1);
+                // 提示新消息来了
+                barrage('你有新消息来了~');
+            }
         }
     };
 
-    ws.onclose = function()
-    {
+    // 开启 websocket
+    let ws = new WebSocket("ws://127.0.0.1:8282");
+    ws.onopen = function () {
 
-        // 关闭 websocket
-        alert("连接已关闭...");
+        // 把自己的昵称放到后台
+        // 获取所有人的列表
+        ws.send(IO.encode('login', {username: User.username}));
+        ws.send(IO.encode('allUsers'));
+    };
+    ws.onmessage = function (event) {
+
+        let object = IO.decode(event.data);
+        let data = object.data;
+        // 动态方法调用
+        let method = object.type;
+
+        if (! MessageHandler[method]) {
+
+            alert('错误的事件: ' + method);
+            return;
+        }
+
+        console.log(object);
+
+
+        let methodIns = MessageHandler[method];
+        methodIns(data);
+    };
+    ws.close = function () {
+
+        alert('服务器关闭');
     };
 
 
-    // 开始游戏, 联系放到一个组
-    $('#online_users').on('click', '.start_games', function () {
+    // 点击发送消息
+    $('#chat-fasong').click(function () {
 
-        let vs_id = $(this).data('id');
-        let message = {type: 'vs_connection', vs_id: vs_id};
-        ws.send(JSON.stringify(message));
-        layer.msg('发送邀请成功');
+        if (! Char.chatId) {
+            alert('未知的聊天错误');
+            return;
+        }
+
+        if (Char.users[Char.chatId].status === UserClass.USER_STATUSES.LEAVE) {
+            alert('用户已经下线~~~');
+            return;
+        }
+
+        let textDom = $(".div-textarea");
+        let textContent = textDom.html().replace(/[\n\r]/g, '<br>')
+        textDom.html("");
+
+        // 本地存储消息
+        let msgModel = new MessageClass(now(), textContent, true);
+        Char.setMessage(Char.chatId, msgModel);
+        $('#chatBox-content-demo').append(Char.htmlBuilder.msg(msgModel));
+
+        // 用户不在线,不能发送
+        ws.send(IO.encode('message', {to_id: Char.chatId, content: textContent}))
     });
 
-    function HtmlBuilder() {
+    //打开/关闭聊天框
+    $(".chatBtn").click(function () {
+        $(".chatBox").toggle(10);
+    });
+    $(".chat-close").click(function () {
+        $(".chatBox").toggle(10);
+    });
+    // 点击用户列表
+    $("#user_list").on('click', '.chat-list-people', function () {
 
-        this.buildUserHtml = function(id, username) {
+        // 把所有消息从缓存里读取, 然后显示
+        let id = $(this).data('id');
 
-            let className = '';
-            let buttonDom = '<button data-id="'+ id +'" type="button" class="btn btn-info btn-block start_games">(联机)</button>\n';
-            if (id === User.id) {
+        // 点击的时候, 把当前聊天对象给值
+        Char.chatId = id;
 
-                className = 'green_span';
-                buttonDom = '';
-            }
+        let user = Char.getUser(id);
 
+        let html = '';
+        console.log(user.messages);
+        for (let i in user.messages) {
 
-            return '<div class="panel panel-default" id="online_users_'+ id +'">\n' +
-                '  <div class="panel-body txt '+ className +'" title="'+ id +'" >\n' +
-                '    '+ username +' ('+ id +') \n' +
-                '  </div>\n' + buttonDom +
-                '</div>';
-        };
+            html += Char.htmlBuilder.msg(user.messages[i]);
+        }
+        $('#chatBox-content-demo').html(html);
 
-        this.initUserList = function (users) {
+        // 进入聊天页面的时候, 把未读数清空
+        $(".chatBox-head-one").toggle();
+        $(".chatBox-head-two").toggle();
+        $(".chatBox-list").fadeToggle();
+        $(".chatBox-kuang").fadeToggle();
 
-            let that = this;
-            let html = '';
+        //传名字
+        $(".ChatInfoName").text($(this).children(".chat-name").children("p").eq(0).html());
+        //传头像
+        // $(".ChatInfoHead>img").attr("src", $(this).children().eq(0).children("img").attr("src"));
+        $("#char-avatar").attr("src", user.avatar);
 
-            Object.keys(users).forEach(function (key) {
+        $("#chatBox-content-demo").scrollTop($("#chatBox-content-demo")[0].scrollHeight);
+        let unreadCount = Char.getUserUnreadCount(id);
+        Char.updateUserUnreadCount(id, -1 * unreadCount);
+        Char.updateTotalNumber(-1 * unreadCount);
+    });
+    //返回列表
+    $(".chat-return").click(function () {
 
-                html += that.buildUserHtml(key, users[key].username);
-            });
+        // 返回列表的时候, 清楚聊天对象
+        Char.chatId = null;
 
-            $('#online_users').html(html);
-        };
-
-        this.appendUser = function (id, username) {
-
-            $('#online_users').append(this.buildUserHtml(id, username));
-        };
-
-
-        this.removeUser = function (id) {
-            let dom = '#online_users_' + id;
-            let username = $(dom).find('.panel-body').text();
-            $(dom).remove();
-
-            return username;
-        };
-    };
-
-
-    function MessageBuilder() {
-
-        this.dom = $('#messages');
-
-        this.send = function (msg, isGroup) {
-
-            let color = isGroup ? '#98FB98' : '#fff';
-
-            let item = {
-                info: msg, //文字
-                close:true, //显示关闭按钮
-                speed:6, //延迟,单位秒,默认6
-                color: color, //颜色,默认白色
-                old_ie_color:'#ffffff', //ie低版兼容色,不能与网页背景相同,默认黑色
-            };
-
-            this.dom.barrager(item);
-        };
-
-        this.error = function (msg) {
-
-            layer.alert(msg, {icon: 2, title: '错误'});
-        };
-    }
-
-    // $('#canvas').barrager("clear");
+        $(".chatBox-head-one").toggle(1);
+        $(".chatBox-head-two").toggle(1);
+        $(".chatBox-list").fadeToggle(1);
+        $(".chatBox-kuang").fadeToggle(1);
+    });
 </script>
-<script src="assets/js/chat.js"></script>
 </body>
 </html>
