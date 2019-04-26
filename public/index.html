@@ -36,7 +36,7 @@
                             <img title="点我更换头像" style="vertical-align: baseline; cursor: pointer" id="self-avatar" src="" alt="头像">
                         </div>
                     </div>
-                    <span id="self-username">xxx</span>
+                    <span style="cursor: pointer;" id="self-username" title="点我更换名字">xxx</span>
                     <div class="chat-close" style="margin: 10px 10px 0 0;font-size: 14px">关闭</div>
                 </div>
                 <div class="chatBox-head-two" style="display: none;">
@@ -45,7 +45,7 @@
                         <div class="ChatInfoHead">
                             <img id="char-avatar" style="vertical-align: baseline;"  src="" alt="头像">
                         </div>
-                        <div class="ChatInfoName">朗姆酒</div>
+                        <div class="ChatInfoName">xxx</div>
                     </div>
                     <div class="chat-close">关闭</div>
                 </div>
@@ -82,8 +82,6 @@
 <script>
     // 用户初始化进来用户名
     let User = {username: '游客', id: null};
-    User.username = prompt('请输入大侠的名字') || '游客';
-
     // 通信协议
     let IO = new IOClass();
     // 聊天
@@ -141,7 +139,6 @@
                 barrage('你有新消息来了~');
             }
         },
-
         updateAvatar: function (data) {
 
             let id = data.client_id;
@@ -155,6 +152,21 @@
             if (Char.chatId === id) {
 
                 $('#char-avatar').attr('src', data.src);
+            }
+        },
+        updateUserName: function (data) {
+
+            let id = data.client_id;
+
+            // 哪一个用户修改了头像
+            Char.users[id].username = data.username;
+            // 直接操作 dom 修改
+            $('#user-list-' + id).find('.chat-name p').text(data.username);
+
+            // 如果是正在聊天的, 也要替换
+            if (Char.chatId === id) {
+
+                $('.ChatInfoName').text(data.username);
             }
         }
     };
@@ -252,9 +264,7 @@
         $(".chatBox-kuang").fadeToggle();
 
         //传名字
-        $(".ChatInfoName").text($(this).children(".chat-name").children("p").eq(0).html());
-        //传头像
-        // $(".ChatInfoHead>img").attr("src", $(this).children().eq(0).children("img").attr("src"));
+        $(".ChatInfoName").text(user.username);
         $("#char-avatar").attr("src", user.avatar);
 
         $("#chatBox-content-demo").scrollTop($("#chatBox-content-demo")[0].scrollHeight);
@@ -282,6 +292,17 @@
             layer.closeAll();
             $('#self-avatar').attr('src', src);
             ws.send(IO.encode('updateAvatar', {src: src}));
+        });
+    });
+    // 更换名字
+
+    $('#self-username').click(function () {
+        layer.prompt({title: '请填写你的昵称!!!', formType: 3}, function(username){
+
+            layer.closeAll();
+
+            $('#self-username').text(username);
+            ws.send(IO.encode('updateUserName', {username: username}));
         });
     });
 </script>

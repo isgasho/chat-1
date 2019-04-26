@@ -39,12 +39,21 @@ class MessageHandler
         Gateway::sendToClient($client_id, IO::encode('allUsers', array_values($users)));
     }
 
-    public function updateAvatar($client_id, array $data)
+    public static function updateAvatar($client_id, array $data)
     {
         $src = $data['src'];
 
         // 修改自己的头像, 推送给其他人
         $_SESSION['avatar'] = $src;
         Gateway::sendToAll(IO::encode('updateAvatar', compact('src', 'client_id')), null, $client_id);
+    }
+
+    public static function updateUserName($client_id, array $data)
+    {
+        $username = $data['username'];
+
+        // 修改自己的头像, 推送给其他人
+        $_SESSION['username'] = $username;
+        Gateway::sendToAll(IO::encode('updateUserName', compact('username', 'client_id')), null, $client_id);
     }
 }
