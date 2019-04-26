@@ -2,14 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="54e33f0a-3157-493b-b58d-d44cdc9eb661" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/GatewayWorker.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/GatewayWorker.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Applications/YourApp/Events.php" beforeDir="false" afterPath="$PROJECT_DIR$/Applications/YourApp/Events.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/assets/css/chat.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/assets/css/chat.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/assets/js/chat.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Applications/MessageHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/Applications/MessageHandler.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/index.html" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -41,7 +34,7 @@
           <entry key="css" value="8" />
           <entry key="gitignore" value="1" />
           <entry key="html" value="4" />
-          <entry key="js" value="12" />
+          <entry key="js" value="13" />
           <entry key="json" value="2" />
           <entry key="php" value="50" />
           <entry key="png" value="5" />
@@ -57,7 +50,7 @@
           <entry key="HTML" value="4" />
           <entry key="Image" value="5" />
           <entry key="JSON" value="2" />
-          <entry key="JavaScript" value="12" />
+          <entry key="JavaScript" value="13" />
           <entry key="PHP" value="50" />
           <entry key="PLAIN_TEXT" value="1" />
           <entry key="TypeScript" value="2" />
@@ -67,19 +60,19 @@
         <counts>
           <entry key="css" value="124" />
           <entry key="dummy" value="9" />
-          <entry key="html" value="13977" />
+          <entry key="html" value="14439" />
           <entry key="js" value="5450" />
           <entry key="json" value="25" />
-          <entry key="php" value="4417" />
+          <entry key="php" value="4548" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSS" value="124" />
-          <entry key="HTML" value="13977" />
+          <entry key="HTML" value="14439" />
           <entry key="JSON" value="25" />
           <entry key="JavaScript" value="5450" />
-          <entry key="PHP" value="4417" />
+          <entry key="PHP" value="4548" />
           <entry key="PLAIN_TEXT" value="9" />
         </counts>
       </usages-collector>
@@ -87,11 +80,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/public/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="229">
-              <caret line="198" column="37" selection-start-line="198" selection-start-column="37" selection-end-line="198" selection-end-column="37" />
+            <state relative-caret-position="327">
+              <caret line="281" column="29" selection-start-line="281" selection-start-column="29" selection-end-line="281" selection-end-column="29" />
               <folding>
                 <element signature="n#style#0;n#div#0;n#div#0;n#div#2;n#div#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#0;n#div#2;n#div#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -108,26 +101,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/assets/js/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="163">
-              <caret line="143" column="44" selection-start-line="143" selection-start-column="44" selection-end-line="143" selection-end-column="44" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/public/assets/css/chat.css">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="491">
-              <caret line="364" column="8" selection-start-line="364" selection-start-column="8" selection-end-line="364" selection-end-column="8" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Applications/MessageHandler.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="563">
-              <caret line="31" column="9" selection-start-line="31" selection-start-column="9" selection-end-line="31" selection-end-column="9" />
+            <state relative-caret-position="371">
+              <caret line="133" column="47" selection-start-line="133" selection-start-column="35" selection-end-line="133" selection-end-column="47" />
             </state>
           </provider>
         </entry>
@@ -135,11 +110,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Applications/YourApp/Events.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="384">
+            <state relative-caret-position="312">
               <caret line="65" column="34" lean-forward="true" selection-start-line="65" selection-start-column="34" selection-end-line="65" selection-end-column="34" />
               <folding>
                 <element signature="e#6#427#0#PHP" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Applications/MessageHandler.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="515">
+              <caret line="47" column="79" selection-start-line="47" selection-start-column="70" selection-end-line="47" selection-end-column="79" />
             </state>
           </provider>
         </entry>
@@ -157,7 +141,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>buildBox</find>
       <find>inline_users</find>
       <find>inlineUsersDom</find>
       <find>putUser</find>
@@ -187,6 +170,7 @@
       <find>send</find>
       <find>错误</find>
       <find>setMessage</find>
+      <find>self-avatar</find>
     </findStrings>
     <dirStrings>
       <dir>C:\www\GatewayWorker</dir>
@@ -211,10 +195,10 @@
         <option value="$PROJECT_DIR$/Applications/Json.php" />
         <option value="$PROJECT_DIR$/Applications/MessageSender.php" />
         <option value="$PROJECT_DIR$/Applications/YourApp/Events.php" />
-        <option value="$PROJECT_DIR$/Applications/MessageHandler.php" />
-        <option value="$PROJECT_DIR$/public/index.html" />
         <option value="$PROJECT_DIR$/public/assets/js/app.js" />
         <option value="$PROJECT_DIR$/public/assets/css/chat.css" />
+        <option value="$PROJECT_DIR$/Applications/MessageHandler.php" />
+        <option value="$PROJECT_DIR$/public/index.html" />
       </list>
     </option>
   </component>
@@ -367,12 +351,12 @@
       <workItem from="1556156302449" duration="152000" />
       <workItem from="1556156486192" duration="168000" />
       <workItem from="1556156677845" duration="26197000" />
-      <workItem from="1556242575281" duration="22202000" />
+      <workItem from="1556242575281" duration="23335000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="61924000" />
+    <option name="totallyTimeSpent" value="63057000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -565,9 +549,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/public/assets/css/chat.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="137">
+          <caret line="364" column="8" selection-start-line="364" selection-start-column="8" selection-end-line="364" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Applications/MessageHandler.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="515">
+          <caret line="47" column="79" selection-start-line="47" selection-start-column="70" selection-end-line="47" selection-end-column="79" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Applications/YourApp/Events.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
+        <state relative-caret-position="312">
           <caret line="65" column="34" lean-forward="true" selection-start-line="65" selection-start-column="34" selection-end-line="65" selection-end-column="34" />
           <folding>
             <element signature="e#6#427#0#PHP" expanded="true" />
@@ -575,17 +573,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Applications/MessageHandler.php">
+    <entry file="file://$PROJECT_DIR$/public/assets/js/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="563">
-          <caret line="31" column="9" selection-start-line="31" selection-start-column="9" selection-end-line="31" selection-end-column="9" />
+        <state relative-caret-position="371">
+          <caret line="133" column="47" selection-start-line="133" selection-start-column="35" selection-end-line="133" selection-end-column="47" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="229">
-          <caret line="198" column="37" selection-start-line="198" selection-start-column="37" selection-end-line="198" selection-end-column="37" />
+        <state relative-caret-position="327">
+          <caret line="281" column="29" selection-start-line="281" selection-start-column="29" selection-end-line="281" selection-end-column="29" />
           <folding>
             <element signature="n#style#0;n#div#0;n#div#0;n#div#2;n#div#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#0;n#div#2;n#div#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -595,20 +593,6 @@
             <element signature="e#3065#3219#0" />
             <element signature="e#3638#3670#0" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/assets/js/app.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="163">
-          <caret line="143" column="44" selection-start-line="143" selection-start-column="44" selection-end-line="143" selection-end-column="44" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/assets/css/chat.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="491">
-          <caret line="364" column="8" selection-start-line="364" selection-start-column="8" selection-end-line="364" selection-end-column="8" />
         </state>
       </provider>
     </entry>

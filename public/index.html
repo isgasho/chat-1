@@ -33,7 +33,7 @@
                 <div class="chatBox-head-one" style="display: block;">
                     <div class="chat-people">
                         <div class="ChatInfoHead">
-                            <img style="vertical-align: baseline;" id="self-avatar" src="" alt="头像">
+                            <img title="点我更换头像" style="vertical-align: baseline; cursor: pointer" id="self-avatar" src="" alt="头像">
                         </div>
                     </div>
                     <span id="self-username">xxx</span>
@@ -139,6 +139,22 @@
                 Char.updateUserUnreadCount(fromId, 1);
                 // 提示新消息来了
                 barrage('你有新消息来了~');
+            }
+        },
+
+        updateAvatar: function (data) {
+
+            let id = data.client_id;
+
+            // 哪一个用户修改了头像
+            Char.users[id].avatar = data.src;
+            // 直接操作 dom 修改
+            $('#user-list-' + id).find('.chat-avatars').attr('src', data.src);
+
+            // 如果是正在聊天的, 也要替换
+            if (Char.chatId === id) {
+
+                $('#char-avatar').attr('src', data.src);
             }
         }
     };
@@ -256,6 +272,17 @@
         $(".chatBox-head-two").toggle(1);
         $(".chatBox-list").fadeToggle(1);
         $(".chatBox-kuang").fadeToggle(1);
+    });
+
+    // 更换头像
+    $('#self-avatar').click(function () {
+
+        layer.prompt({title: '填写头像地址, 必须是网络地址!!!', formType: 3}, function(src){
+
+            layer.closeAll();
+            $('#self-avatar').attr('src', src);
+            ws.send(IO.encode('updateAvatar', {src: src}));
+        });
     });
 </script>
 </body>
